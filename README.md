@@ -18,6 +18,30 @@ O projeto está em fase inicial de desenvolvimento e as próximas atualizações
 * [ ] Implementação dos agentes
 * [ ] Painel básico de consulta
 
+## 📁 Estrutura do Projeto
+
+```
+facompbot/
+│
+├── src/
+│   └── facompbot/
+│       ├── __init__.py
+│       ├── agent/              # Lógica do agente inteligente (modelos, decisões, etc.)
+│       ├── features/           # Extração e engenharia de features
+│       ├── utils/              # Funções utilitárias e helpers
+│       └── config/             # Configurações, parâmetros, arquivos .yaml/.json
+│
+├── data/                       # Dados brutos, processados, scripts de ETL
+├── notebooks/                  # Jupyter notebooks para experimentos e análises
+├── tests/                      # Testes unitários e de integração
+│
+├── main.py                     # Ponto de entrada da aplicação
+├── pyproject.toml
+├── README.md
+└── requirements.txt
+```
+
+
 ## 💻 Pré-requisitos
 
 Antes de começar, verifique se você possui:
