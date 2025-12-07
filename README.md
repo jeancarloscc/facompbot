@@ -8,15 +8,35 @@
 
 > Mini-projeto que implementa um chatbot especializado usando modelos de linguagem, prompt engineering e contexto baseado em documentos da FACOMP/UFPA. O objetivo é permitir consultas diretas aos regulamentos disponibilizados.
 
-### Ajustes e melhorias
+## 🚀 Quick Start
 
-O projeto está em fase inicial de desenvolvimento e as próximas atualizações serão voltadas para:
+```bash
+# 1. Instalar dependências
+pip install google-generativeai google-adk python-dotenv
 
-* [ ] Estruturação do notebook principal
-* [ ] Integração com modelos generativos
-* [ ] Upload e leitura dos PDFs regulatórios
-* [ ] Implementação dos agentes
-* [ ] Painel básico de consulta
+# 2. Configurar API Key
+echo "GOOGLE_API_KEY=sua-chave-aqui" > .env
+
+# 3. Adicionar PDFs na pasta data/
+
+# 4a. Usar ADK Web (interface gráfica)
+adk web src
+
+# 4b. Ou executar via Python
+python main.py
+```
+
+📖 **[Guia Completo de Uso](USAGE.md)**
+
+### Status do Projeto
+
+* [x] Estrutura do projeto organizada
+* [x] Integração com Gemini API
+* [x] Upload e leitura de PDFs
+* [x] Implementação de agentes
+* [x] Interface ADK Web
+* [ ] Testes unitários
+* [ ] Deploy em produção
 
 ## 📁 Estrutura do Projeto
 
@@ -24,73 +44,87 @@ O projeto está em fase inicial de desenvolvimento e as próximas atualizações
 facompbot/
 │
 ├── src/
+│   ├── facomp_agent.py         # Agente para ADK Web
 │   └── facompbot/
-│       ├── __init__.py
-│       ├── agent/              # Lógica do agente inteligente (modelos, decisões, etc.)
-│       ├── features/           # Extração e engenharia de features
-│       ├── utils/              # Funções utilitárias e helpers
-│       └── config/             # Configurações, parâmetros, arquivos .yaml/.json
+│       ├── agent/              # Classes de agentes customizados
+│       ├── prompts/            # Instruções e prompts do sistema
+│       ├── tools/              # Ferramentas (upload PDFs, etc.)
+│       ├── utils/              # Utilitários gerais
+│       └── config/             # Configurações
 │
-├── data/                       # Dados brutos, processados, scripts de ETL
-├── notebooks/                  # Jupyter notebooks para experimentos e análises
+├── data/                       # PDFs dos regulamentos
+├── notebooks/                  # Jupyter notebooks para experimentos
 ├── tests/                      # Testes unitários e de integração
 │
-├── main.py                     # Ponto de entrada da aplicação
+├── main.py                     # Script standalone
+├── USAGE.md                    # Documentação de uso detalhada
 ├── pyproject.toml
-├── README.md
-└── requirements.txt
+└── README.md
 ```
 
 
 ## 💻 Pré-requisitos
 
-Antes de começar, verifique se você possui:
+* Python 3.10+
+* Chave de API do Google (Gemini)
+* Google ADK (opcional, para interface web)
 
-* Python 3.10 ou superior instalado
-* `pip`, `poetry` ou `uv` como gerenciador de pacotes
-* Jupyter Notebook
-* Chaves de API válidas do provedor de modelo usado (ex: OpenAI, Anthropic, etc.)
-
-## 🚀 Instalando facompchatbot
-
-### Usando pip
+## 🚀 Instalação
 
 ```bash
-pip install -r requirements.txt
+# Instalar dependências
+pip install google-generativeai google-adk python-dotenv
+
+# Ou com poetry
+poetry add google-generativeai google-adk python-dotenv
+
+# Configurar API Key
+echo "GOOGLE_API_KEY=sua-chave-aqui" > .env
 ```
 
-### Usando Poetry
+## ☕ Como Usar
+
+### Opção 1: ADK Web (Interface Gráfica)
 
 ```bash
-poetry install
+# Iniciar servidor
+adk web src
+
+# Acessar no navegador
+http://localhost:8000
 ```
 
-### Usando uv
+### Opção 2: Script Python
 
 ```bash
-uv pip install -r requirements.txt
+# Executar com perguntas de demonstração
+python main.py
+
+# Para modo interativo, edite main.py e descomente:
+# interactive_mode(chat)
 ```
 
-## ☕ Usando facompchatbot
+### Opção 3: Integração com Código
 
-### Com pip ou uv
+```python
+from src.facompbot.tools.document_tools import load_documents
+from src.facompbot.prompts.prompts import SYSTEM_INSTRUCTION
+import google.generativeai as genai
 
-```bash
-jupyter notebook
+genai.configure(api_key="sua-chave")
+uploaded_files = load_documents("data")
+
+model = genai.GenerativeModel(
+    model_name="gemini-2.0-flash-exp",
+    system_instruction=SYSTEM_INSTRUCTION
+)
+
+chat = model.start_chat()
+response = chat.send_message("Sua pergunta aqui")
+print(response.text)
 ```
 
-### Com Poetry
-
-```bash
-poetry run jupyter notebook
-```
-
-Abra o notebook principal e execute as células para:
-
-* Carregar os documentos PDF
-* Indexar o conteúdo
-* Enviar perguntas ao chatbot
-* Obter respostas fundamentadas nos arquivos
+📖 **[Documentação Completa](USAGE.md)**
 
 ## 📫 Contribuindo para facompchatbot
 
