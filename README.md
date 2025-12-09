@@ -1,11 +1,5 @@
 # facompchatbot
 
-![GitHub repo size](https://img.shields.io/github/repo-size/jeancarloscc/facompbot?style=for-the-badge)
-![GitHub language count](https://img.shields.io/github/languages/count/jeancarloscc/facompbot?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/jeancarloscc/facompbot?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/jeancarloscc/facompbot?style=for-the-badge)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/jeancarloscc/facompbot?style=for-the-badge)
-
 > Mini-projeto que implementa um sistema multi-agente especializado usando modelos de linguagem (Gemini), prompt engineering e contexto baseado em documentos da FACOMP/UFPA. O objetivo é permitir consultas inteligentes e automáticas aos regulamentos acadêmicos.
 
 ## 🚀 Quick Start
@@ -26,8 +20,6 @@ adk web src
 python main.py
 ```
 
-📖 **[Guia Completo de Uso](USAGE.md)**
-
 ### Status do Projeto
 
 - [x] Estrutura modular e organizada
@@ -46,11 +38,11 @@ facompbot/
 │
 ├── src/
 │   └── facompbot/
+│       ├── __init__.py           # Inicialização do pacote
 │       ├── agent.py              # Classe base dos agentes
 │       ├── agents_factory.py     # Factory para criação dos agentes multi-agente
 │       ├── prompts.py            # Instruções e prompts do sistema
-│       ├── tools/
-│       │    └── document_tools.py # Ferramentas (busca em PDFs, busca em links)
+│       ├── document_tools.py     # Ferramentas (busca em PDFs, busca em links)
 │       ├── runner.py             # Runner e integração com ADK
 │       ├── config.py             # Configurações e ambiente
 │       └── events.py             # Eventos e callbacks customizados
@@ -60,7 +52,6 @@ facompbot/
 ├── tests/                        # Testes unitários e de integração
 │
 ├── main.py                       # Script principal (multi-agente)
-├── USAGE.md                      # Documentação de uso detalhada
 ├── pyproject.toml
 └── README.md
 ```
@@ -94,27 +85,31 @@ python main.py
 # O sistema irá rotear perguntas automaticamente para o agente especializado
 ```
 
-### Opção 3: Integração com Código
+### Opção 2: Integração com Código
 
 ```python
-from src.facompbot.tools.document_tools import load_documents
-from src.facompbot.prompts import SYSTEM_INSTRUCTION
+from facompbot.document_tools import load_documents
+from facompbot.prompts import SYSTEM_INSTRUCTION
+from facompbot.config import setup_environment
 import google.generativeai as genai
 
-genai.configure(api_key="sua-chave")
+# Configurar ambiente
+setup_environment()
+
+# Carregar documentos
 uploaded_files = load_documents("data")
 
+# Criar modelo
 model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash-exp",
+    model_name="gemini-2.5-flash",
     system_instruction=SYSTEM_INSTRUCTION
 )
 
+# Iniciar chat
 chat = model.start_chat()
 response = chat.send_message("Sua pergunta aqui")
 print(response.text)
 ```
-
-📖 **[Documentação Completa](USAGE.md)**
 
 ## 📫 Contribuindo para facompchatbot
 
