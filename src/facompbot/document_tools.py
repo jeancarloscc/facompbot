@@ -98,3 +98,24 @@ def create_document_context(uploaded_files: List[object]) -> str:
     context += "\n✅ Esses são os regulamentos oficiais da FACOMP/UFPA que devem ser usados como única fonte de verdade."
 
     return context
+
+def search_from_link(query):
+    """
+    Realiza uma busca na web usando a ferramenta de busca do Google ADK.
+
+    Args:
+        query: A consulta de busca como string.
+
+    Returns:
+        Resultados da busca como string.
+    """
+    import requests
+    from bs4 import BeautifulSoup
+    url = "https://computacao.ufpa.br/index.php/perguntas-frequentes-faqs"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    text = soup.get_text()
+    if query.lower() in text.lower():
+        return f"A informação sobre '{query}' foi encontrada na página de FAQs da FACOMP/UFPA."
+    else:
+        return f"A informação sobre '{query}' não foi encontrada na página de FAQs da FACOMP/UFPA." 
