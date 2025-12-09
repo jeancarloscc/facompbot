@@ -9,132 +9,34 @@ Sistema com agentes especializados para responder perguntas sobre FACOMP/UFPA:
 
 Uso: python main.py
 """
-import os
 import asyncio
 import uuid
-from dotenv import load_dotenv
 from google.genai import types
-from google.adk.sessions import InMemorySessionService
+
+# Imports dos módulos do projeto
+from facompbot.config import setup_environment, DEFAULT_MODEL, DATA_DIRECTORY
 from facompbot.document_tools import load_documents
-from facompbot.prompts import SYSTEM_INSTRUCTION
-from facompbot.agent import FacompBotAgent
-from google.adk.runners import Runner
-from google.adk.apps.app import App, ResumabilityConfig
+from facompbot.agents_factory import create_agents, print_agents_summary
+from facompbot.runner import create_runner
+from facompbot.events import check_for_approval, create_approval_response
 
 # Configurar ambiente
-load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    raise ValueError("❌ Configure GOOGLE_API_KEY no arquivo .env")
-os.environ["GOOGLE_API_KEY"] = api_key
+setup_environment()
 
 # Carregar documentos
 print("📚 Carregando documentos...")
-uploaded_files = load_documents("data")
+uploaded_files = load_documents(DATA_DIRECTORY)
 print(f"✅ {len(uploaded_files)} arquivo(s) carregado(s)\n")
 
-# ===== CRIAR AGENTES ESPECIALIZADOS =====
+# Criar agentes especializados
+agents = create_agents(DEFAULT_MODEL)
+print_agents_summary(agents)
 
-model = "gemini-2.5-flash"
-
-faq_agent = FacompBotAgent(
-    name="FAQAgent",
-    model=model,
-    instruction="Você é especialista em responder perguntas frequentes sobre FACOMP/UFPA. Seja objetivo e direto.",
-    output_key="faq_response"
-)
-
-conteudo_agent = FacompBotAgent(
-    name="ConteudoAgent",
-    model=model,
-    instruction=f"{SYSTEM_INSTRUCTION}\n\nForneça explicações detalhadas sobre regulamentos e procedimentos.",
-    output_key="conteudo_response"
-)
-
-estagio_agent = FacompBotAgent(
-    name="EstagioAgent",
-    model=model,
-    instruction="Você é especialista em estágio obrigatório da FACOMP/UFPA. Responda sobre: carga horária, documentação, prazos, orientação.",
-    output_key="estagio_response"
-)
-
-acc_agent = FacompBotAgent(
-    name="ACCAgent",
-    model=model,
-    instruction="Você é especialista em Atividades Complementares (ACC) da FACOMP/UFPA. Responda sobre: horas necessárias, tipos de atividades, validação, documentação.",
-    output_key="acc_response"
-)
-
-router_agent = FacompBotAgent(
-    name="RouterAgent",
-    model=model,
-    instruction="""Você é um roteador inteligente que analisa perguntas e responde diretamente.
-Baseado na pergunta, use o conhecimento apropriado:
-- FAQAgent: Perguntas simples e diretas
-- ConteudoAgent: Explicações detalhadas
-- EstagioAgent: Dúvidas sobre estágio obrigatório
-- ACCAgent: Dúvidas sobre Atividades Complementares
-
-Responda em português de forma clara e objetiva.""",
-    output_key="router_response"
-)
-
-print("✅ Agentes criados:")
-print(f"  • {faq_agent.name} - Perguntas frequentes")
-print(f"  • {conteudo_agent.name} - Conteúdo detalhado")
-print(f"  • {estagio_agent.name} - Estágio obrigatório")
-print(f"  • {acc_agent.name} - Atividades Complementares")
-print(f"  • {router_agent.name} - Roteamento inteligente")
-
-# Criar app e runner
-facompbot_app = App(
-    name="agents",
-    root_agent=router_agent.agent
-)
-
-session_service = InMemorySessionService()
-
-facompbot_runner = Runner(
-    app=facompbot_app,
-    session_service=session_service
-)
+# Criar runner e session service
+facompbot_runner, session_service = create_runner(agents["router"])
 
 print("\n💬 FacompBot Multi-Agente iniciado! Digite 'sair' para encerrar.\n")
 
-
-def check_for_approval(events):
-    """Check if events contain an approval request.
-
-    Returns:
-        dict with approval details or None
-    """
-    for event in events:
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                if (
-                    part.function_call
-                    and part.function_call.name == "adk_request_confirmation"
-                ):
-                    return {
-                        "approval_id": part.function_call.id,
-                        "invocation_id": event.invocation_id,
-                    }
-    return None
-
-
-def create_approval_response(approval_info, approved):
-    """Create approval response message."""
-    confirmation_response = types.FunctionResponse(
-        id=approval_info["approval_id"],
-        name="adk_request_confirmation",
-        response={"confirmed": approved},
-    )
-    return types.Content(
-        role="user", parts=[types.Part(function_response=confirmation_response)]
-    )
-
-
-print("✅ Helper functions defined")
 # ===== LOOP INTERATIVO =====
 
 
@@ -142,7 +44,7 @@ async def main():
     """Função principal async para executar o loop interativo"""
     session_id = uuid.uuid4().hex[:8]
 
-    await session_service.create_session(app_name="facompbot", user_id="test_user", session_id=session_id)
+    await session_service.create_session(app_name="agents", user_id="test_user", session_id=session_id)
 
     while True:
         try:
