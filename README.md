@@ -19,14 +19,9 @@ echo "GOOGLE_API_KEY=sua-chave-aqui" > .env
 
 # 3. Adicionar PDFs na pasta data/
 
-# 4a. Usar ADK Web (interface gráfica)
-adk web src
-
-# 4b. Ou executar via Python
+# 4. Executar via Python
 python main.py
 ```
-
-📖 **[Guia Completo de Uso](USAGE.md)**
 
 ### Status do Projeto
 
@@ -35,7 +30,8 @@ python main.py
 - [x] Integração com Gemini API
 - [x] Upload e leitura de PDFs
 - [x] Ferramentas customizadas (busca em link, busca em PDF)
-- [x] Interface ADK Web
+- [x] **MemoryBank - Sistema de memória de longo prazo**
+- [x] **AgentOrchestrator - Execução paralela, sequencial e em loop**
 - [ ] Testes unitários
 - [ ] Deploy em produção
 
@@ -49,8 +45,9 @@ facompbot/
 │       ├── agent.py              # Classe base dos agentes
 │       ├── agents_factory.py     # Factory para criação dos agentes multi-agente
 │       ├── prompts.py            # Instruções e prompts do sistema
-│       ├── tools/
-│       │    └── document_tools.py # Ferramentas (busca em PDFs, busca em links)
+│       ├── orchestrator.py       # 🆕 Orquestrador (paralelo, sequencial, loop)
+│       ├── memory.py             # 🆕 MemoryBank - memória de longo prazo
+│       ├── document_tools.py     # Ferramentas (busca em PDFs, busca em links)
 │       ├── runner.py             # Runner e integração com ADK
 │       ├── config.py             # Configurações e ambiente
 │       └── events.py             # Eventos e callbacks customizados
@@ -60,7 +57,6 @@ facompbot/
 ├── tests/                        # Testes unitários e de integração
 │
 ├── main.py                       # Script principal (multi-agente)
-├── USAGE.md                      # Documentação de uso detalhada
 ├── pyproject.toml
 └── README.md
 ```
@@ -93,45 +89,6 @@ echo "GOOGLE_API_KEY=sua-chave-aqui" > .env
 python main.py
 # O sistema irá rotear perguntas automaticamente para o agente especializado
 ```
-
-### Opção 3: Integração com Código
-
-```python
-from src.facompbot.tools.document_tools import load_documents
-from src.facompbot.prompts import SYSTEM_INSTRUCTION
-import google.generativeai as genai
-
-genai.configure(api_key="sua-chave")
-uploaded_files = load_documents("data")
-
-model = genai.GenerativeModel(
-    model_name="gemini-2.0-flash-exp",
-    system_instruction=SYSTEM_INSTRUCTION
-)
-
-chat = model.start_chat()
-response = chat.send_message("Sua pergunta aqui")
-print(response.text)
-```
-
-📖 **[Documentação Completa](USAGE.md)**
-
-## 📫 Contribuindo para facompchatbot
-
-1. Faça um fork do repositório
-2. Crie um branch:
-   ```bash
-   git checkout -b minha-feature
-   ```
-3. Faça alterações e confirme:
-   ```bash
-   git commit -m "Descrição da alteração"
-   ```
-4. Envie para o repositório:
-   ```bash
-   git push origin minha-feature
-   ```
-5. Crie um Pull Request
 
 ## 🤝 Colaboradores
 
